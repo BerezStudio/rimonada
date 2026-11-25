@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>רימונדה | משחק מילים בעברית</title>
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;800&family=Rubik:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+
+  <!-- ==================== LANDING VIEW ==================== -->
+  <div id="landing-view">
+    <div class="landing-header">
+      <div class="brand-badge">
+        <span class="flag-wrap" aria-hidden="true">
+          <svg class="il-flag-svg" viewBox="0 0 24 16" xmlns="http://www.w3.org/2000/svg">
+            <rect width="24" height="16" rx="2" fill="#ffffff"/>
+            <rect y="1.8" width="24" height="2.4" fill="#0038b8"/>
+            <rect y="11.8" width="24" height="2.4" fill="#0038b8"/>
+            <polygon points="12,4.8 14.7,9.5 9.3,9.5" fill="none" stroke="#0038b8" stroke-width="0.9" stroke-linejoin="round"/>
+            <polygon points="12,11.2 14.7,6.5 9.3,6.5" fill="none" stroke="#0038b8" stroke-width="0.9" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span>משחק המילים המתפוצץ של ישראל</span>
+      </div>
+
+      <h1 class="landing-title">
+        <img src="/logo.jpg" class="title-logo-img" alt="רימונדה" />
+        <span class="title-text">רימונדה</span>
+      </h1>
+
+      <p class="landing-subtitle">
+        שלוף מילה בעברית שמכילה את הצירוף, שחרר את הנצרה ואל תישאר עם הרימון ביד!
+      </p>
+    </div>
+
+    <div class="nickname-bar">
+      <div class="avatar-picker-wrap">
+        <button id="avatar-picker-btn" class="avatar-picker-btn" type="button" title="בחר צבע אווטאר">
+          <span id="selected-avatar-display" class="avatar-dot">א</span>
+          <span class="avatar-caret">▾</span>
+        </button>
+        <div id="avatar-popover" class="avatar-popover hidden" role="listbox" aria-label="בחירת צבע"></div>
+      </div>
+      <label for="nickname-input">הכינוי שלך:</label>
+      <input id="nickname-input" type="text" maxlength="20" placeholder="אורח ישראלי" />
+    </div>
+
+    <div class="landing-grid">
+      <div class="panel-card">
+        <h2>
+          <span>פתח חדר חדש</span>
+        </h2>
+        <div class="form-row">
+          <label for="room-name-input">שם החדר</label>
+          <input id="room-name-input" class="text-input" type="text" maxlength="32" placeholder="החפלה של..." />
+        </div>
+        <div class="form-row">
+          <label>נראות החדר</label>
+          <div class="visibility-toggle">
+            <button id="vis-public" class="vis-btn active" type="button">ציבורי</button>
+            <button id="vis-private" class="vis-btn" type="button">פרטי</button>
+          </div>
+        </div>
+        <button id="create-room-btn" class="btn-primary" type="button">שחק עכשיו</button>
+      </div>
+
+      <div class="panel-card panel-card-join">
+        <h2>
+          <span>הצטרף לחדר פרטי</span>
+        </h2>
+        <div class="form-row">
+          <label for="join-code-input">קוד חדר (4 אותיות)</label>
+          <div class="code-join-row">
+            <input id="join-code-input" class="text-input code-input" type="text" maxlength="4" placeholder="ABCD" />
+            <button id="join-code-btn" class="btn-secondary" type="button">הצטרף</button>
+          </div>
+          <div id="join-error" class="join-error"></div>
+        </div>
+        <div class="bots-tip-box">
+          אפשר לשחק עם חברים או להוסיף <strong>בוטים ישראליים</strong> (סבתא שולה, הרס"ר שמעון, אבי ביטר...) לתוך החדר ולשחק גם לבד.
+        </div>
+      </div>
+    </div>
+
+    <div class="public-rooms-section">
+      <div class="public-rooms-header">
+        <div>
+          <h2 class="section-title">חדרים ציבוריים</h2>
+          <div id="lobby-stats-text" class="lobby-stats-text">טוען חדרים...</div>
+        </div>
+        <button id="refresh-rooms-btn" class="btn-secondary" type="button">רענן</button>
+      </div>
+      <div id="public-rooms-list" class="rooms-grid"></div>
+    </div>
+  </div>
+
+  <!-- ==================== ROOM VIEW ==================== -->
+  <div id="room-view" class="hidden">
+    <header class="top-bar">
+      <div class="top-bar-right">
+        <button id="back-home-btn" class="icon-btn" title="חזרה ללובי">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </button>
+        <div id="room-code-pill" class="top-pill code-pill" title="לחץ להעתקת קישור לחדר">
+          <span id="room-code-text">----</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </div>
+        <div class="top-pill">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span id="room-player-count">0</span>
+        </div>
+        <div id="room-title-bar" class="room-title-bar">חדר</div>
+      </div>
+
+      <div class="top-bar-left">
+        <div id="round-stats-pill" class="top-pill hidden">
+          <span id="round-timer">00:00</span>
+          <span>•</span>
+          <span id="round-words-count">0 מילים</span>
+          <span id="round-streak-badge" class="streak-pill hidden"></span>
+        </div>
+        <button id="mute-btn" class="icon-btn" title="השתק/הפעל צלילים"></button>
+        <button id="toggle-sidebar-btn" class="icon-btn" title="צ'אט ושחקנים">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="room-body">
+      <main id="arena-container" class="arena-container">
+        <div class="arena-top-hud">
+          <div id="status-banner" class="status-banner">⏳ ממתין לעוד שחקנים...</div>
+          <div id="rules-summary-bar" class="rules-summary-bar">
+            <span id="rules-summary-text">עברית מלאה • בינוני (מינ' 300)</span>
+            <button id="open-rules-btn" class="rules-link-btn" type="button">⚙️ חוקים</button>
+          </div>
+        </div>
+
+        <div class="playfield" id="playfield">
+          <canvas id="particles-canvas"></canvas>
+
+          <div id="players-ring"></div>
+
+          <div id="bomb-center" class="bomb-center">
+            <!-- Rotating Turn Pointer Ring -->
+            <div id="turn-arrow-wrap" class="turn-arrow-wrap hidden">
+              <div class="turn-ring"></div>
+              <div class="turn-arrow"></div>
+            </div>
+
+            <!-- Sleek Illustrated Pomegranate-Bomb with Burning Fuse -->
+            <svg class="bomb-svg" viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <radialGradient id="rimonBodyGrad" cx="34%" cy="32%" r="70%">
+                  <stop offset="0%" stop-color="#ff5c7c"/>
+                  <stop offset="32%" stop-color="#cc1842"/>
+                  <stop offset="72%" stop-color="#750a24"/>
+                  <stop offset="100%" stop-color="#360411"/>
+                </radialGradient>
+                <linearGradient id="rimonCrownGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#ff4d6d"/>
+                  <stop offset="100%" stop-color="#8c0e2b"/>
+                </linearGradient>
+                <radialGradient id="rimonCoreGlow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="rgba(18, 4, 9, 0.52)"/>
+                  <stop offset="100%" stop-color="rgba(18, 4, 9, 0)"/>
+                </radialGradient>
+                <radialGradient id="sparkGlow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#ffffff"/>
+                  <stop offset="35%" stop-color="#ffdd55"/>
+                  <stop offset="70%" stop-color="#ff6b2b"/>
+                  <stop offset="100%" stop-color="rgba(255, 70, 0, 0)"/>
+                </radialGradient>
+              </defs>
+
+              <!-- Unlit/burned fuse track -->
+              <path d="M90 36 C90 18, 118 10, 144 20" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="4.5" stroke-linecap="round"/>
+
+              <!-- Active Burning Fuse Wick (shortens from tip toward pomegranate) -->
+              <path id="fuse-wick-path" d="M90 36 C90 18, 118 10, 144 20" fill="none" stroke="#e2a85c" stroke-width="4.5" stroke-linecap="round"/>
+
+              <!-- Sculpted Organic Pomegranate Crown (Calyx) -->
+              <path d="M74 52 C71 42, 68 34, 73 30 C77 27, 81 33, 84 36 C86 30, 88 26, 90 26 C92 26, 94 30, 96 36 C99 33, 103 27, 107 30 C112 34, 109 42, 106 52 Z"
+                    fill="url(#rimonCrownGrad)" stroke="#ff7a95" stroke-width="1.6" stroke-linejoin="round"/>
+
+              <!-- Plump Pomegranate Fruit Silhouette -->
+              <path d="M90 46
+                       C126 46, 150 70, 149 104
+                       C148 138, 122 162, 96 162
+                       C92 162, 91 159, 90 159
+                       C89 159, 88 162, 84 162
+                       C58 162, 32 138, 31 104
+                       C30 70, 54 46, 90 46 Z"
+                    fill="url(#rimonBodyGrad)" stroke="#ff6685" stroke-width="2"/>
+
+              <!-- Subtle dark core behind Hebrew prompt for crisp readability -->
+              <circle cx="90" cy="105" r="36" fill="url(#rimonCoreGlow)"/>
+
+              <!-- Glossy Fruit Specular Highlights -->
+              <ellipse cx="62" cy="76" rx="16" ry="8.5" transform="rotate(-34 62 76)" fill="rgba(255,255,255,0.22)"/>
+              <circle cx="49" cy="91" r="3.5" fill="rgba(255,255,255,0.18)"/>
+
+              <!-- Subtle Pomegranate Seed Cluster Accent (bottom-left) -->
+              <g opacity="0.55">
+                <circle cx="122" cy="126" r="4" fill="#ff3b63"/>
+                <circle cx="128" cy="119" r="3.2" fill="#ff5c7c"/>
+                <circle cx="116" cy="132" r="3" fill="#ff5c7c"/>
+              </g>
+
+              <!-- Animated Fire Spark traveling along the fuse -->
+              <g id="fuse-spark-group" transform="translate(144, 20)">
+                <circle cx="0" cy="0" r="14" fill="url(#sparkGlow)"/>
+                <path d="M0 -10 L3 -3 L10 -4 L4 1 L8 8 L0 4 L-7 8 L-3 1 L-9 -4 L-2 -3 Z" fill="#fff3b0"/>
+              </g>
+            </svg>
+
+            <div id="prompt-badge" class="prompt-badge hidden">בו</div>
+            <div id="lobby-logo-text" class="lobby-logo-text">רימונדה</div>
+          </div>
+
+          <div id="winner-overlay" class="winner-overlay hidden">
+            <div class="winner-avatar-big">
+              <span id="winner-avatar-emoji">א</span>
+              <span class="winner-medal">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#f5b942" stroke="#2d1a00" stroke-width="1.5"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+              </span>
+            </div>
+            <div id="winner-title" class="winner-title">ניצחון!</div>
+          </div>
+        </div>
+
+        <!-- Dedicated Docked Bonus Alphabet Bar ABOVE Footer -->
+        <div id="bonus-alphabet-bar" class="bonus-alphabet-bar hidden"></div>
+
+        <footer class="bottom-bar">
+          <div class="bottom-controls">
+            <button id="join-seat-btn" class="btn-join-game" type="button">הצטרף למשחק</button>
+            <button id="leave-seat-btn" class="btn-leave-seat hidden" type="button">צא</button>
+            <button id="auto-join-btn" class="btn-auto-join" type="button">הצטרפות אוטומטית</button>
+            <div id="bot-controls-group" class="bot-controls-group hidden">
+              <select id="bot-level-select" class="bot-level-select" title="רמת קושי של הבוט">
+                <option value="easy">קל</option>
+                <option value="medium" selected>בינוני</option>
+                <option value="hard">קשה</option>
+              </select>
+              <button id="add-bot-btn" class="btn-secondary" type="button">+ הוסף בוט</button>
+            </div>
+            <button id="start-now-btn" class="btn-primary btn-start-now hidden" type="button">התחל עכשיו</button>
+          </div>
+
+          <div class="turn-center-area">
+            <div id="word-input-wrap" class="word-input-wrap hidden">
+              <div id="reject-toast" class="reject-toast hidden"></div>
+              <input id="word-input" class="word-input" type="text" maxlength="30" autocomplete="off" spellcheck="false" placeholder="הקלד מילה..." />
+            </div>
+            <div id="turn-wait-text" class="turn-wait-text hidden"></div>
+          </div>
+        </footer>
+      </main>
+
+      <div id="sidebar-backdrop" class="sidebar-backdrop hidden"></div>
+
+      <aside id="sidebar" class="sidebar">
+        <div class="sidebar-tabs">
+          <button class="sidebar-tab active" data-tab="chat" type="button">צ'אט</button>
+          <button class="sidebar-tab" data-tab="players" type="button">שחקנים</button>
+          <button class="sidebar-tab" data-tab="room" type="button">חדר</button>
+        </div>
+
+        <div id="tab-chat" class="sidebar-panel">
+          <div id="chat-messages" class="chat-messages"></div>
+          <form id="chat-form" class="chat-input-form">
+            <input id="chat-input" type="text" maxlength="200" placeholder="כתוב הודעה בצ'אט..." autocomplete="off" />
+            <button class="btn-secondary" type="submit">שלח</button>
+          </form>
+        </div>
+
+        <div id="tab-players" class="sidebar-panel hidden">
+          <div id="sidebar-players-list" class="sidebar-players-list"></div>
+        </div>
+
+        <div id="tab-room" class="sidebar-panel hidden">
+          <div class="room-tab-stack">
+            <div id="room-privacy-status" class="room-privacy-card">חדר ציבורי — פתוח לכולם</div>
+            <button id="copy-invite-btn" class="btn-secondary" type="button">העתק קישור להזמנה</button>
+            <button id="toggle-privacy-btn" class="btn-secondary hidden" type="button">חדר ציבורי — לחץ להפוך לפרטי</button>
+            <button id="clear-bots-btn" class="btn-secondary hidden" type="button">הסר את כל הבוטים</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- ==================== RULES MODAL ==================== -->
+  <div id="rules-modal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>חוקי המשחק</h2>
+      </div>
+
+      <p class="modal-desc">
+        הקלד מילה בעברית שמכילה את הצירוף שעל הרימון. אם הרימון מתפוצץ בתורך — תאבד לב! השלם את כל אותיות הבונוס (א'–ת') כדי לקבל לב בחזרה.
+      </p>
+
+      <!-- Read-only summary card for non-hosts or when game is active -->
+      <div id="rules-readonly-card" class="rules-readonly-card hidden"></div>
+
+      <!-- Editable form for host in lobby -->
+      <fieldset id="rules-fieldset" class="rules-fieldset">
+        <div class="rules-grid">
+          <div class="rule-field">
+            <label>רמת קושי צירופים</label>
+            <select id="rule-difficulty">
+              <option value="beginner">מתחיל (מינימום 500 מילים)</option>
+              <option value="medium">בינוני (מינימום 300 מילים)</option>
+              <option value="hard">קשה (מינימום 100 מילים)</option>
+              <option value="custom">מותאם אישית</option>
+            </select>
+          </div>
+
+          <div class="rule-field">
+            <label>זמן תור מינימלי (שניות)</label>
+            <input id="rule-min-turn" type="number" min="1" max="10" value="5" />
+          </div>
+
+          <div class="rule-field">
+            <label>החלפת צירוף אחרי X כישלונות</label>
+            <input id="rule-prompt-age" type="number" min="1" max="16" value="2" />
+          </div>
+
+          <div class="rule-field">
+            <label>מספר שחקנים מקסימלי</label>
+            <input id="rule-max-players" type="number" min="2" max="16" value="16" />
+          </div>
+
+          <div class="rule-field">
+            <label>לבבות התחלתיים</label>
+            <input id="rule-start-lives" type="number" min="1" max="5" value="2" />
+          </div>
+
+          <div class="rule-field">
+            <label>מקסימום לבבות</label>
+            <input id="rule-max-lives" type="number" min="1" max="10" value="3" />
+          </div>
+        </div>
+
+        <div id="custom-diff-row" class="rules-grid hidden">
+          <div class="rule-field">
+            <label>תנאי מותאם</label>
+            <select id="rule-custom-mode">
+              <option value="atLeast">לפחות X מילים</option>
+              <option value="atMost">לכל היותר X מילים</option>
+            </select>
+          </div>
+          <div class="rule-field">
+            <label>כמות מילים</label>
+            <input id="rule-custom-threshold" type="number" min="5" max="2000" value="50" />
+          </div>
+        </div>
+
+        <div class="bonus-editor-section">
+          <div class="bonus-editor-header">
+            <label>אותיות בונוס (א'–ת')</label>
+            <div class="bonus-editor-bulk">
+              <input id="set-all-bonus-val" type="number" min="0" max="5" value="1" />
+              <button id="set-all-bonus-btn" class="rules-link-btn" type="button">קבע לכולן</button>
+            </div>
+          </div>
+          <div id="bonus-editor-grid" class="bonus-editor-grid"></div>
+        </div>
+      </fieldset>
+
+      <div class="modal-footer">
+        <button id="save-rules-btn" class="btn-primary modal-close-btn" type="button">סגור</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/sound.js"></script>
+  <script src="/avatars.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
