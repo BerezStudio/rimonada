@@ -1,0 +1,4 @@
+node_modules/
+.DS_Store
+data/freq_full.txt
+data/krypt.txt
